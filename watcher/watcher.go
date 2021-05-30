@@ -80,7 +80,7 @@ func (w *watcher) List(root string) {
 func (w *watcher) listRecursive(watchFolder string) []models.FilesMetadata {
 	    folders, err := ioutil.ReadDir(watchFolder)
 		if err != nil {
-			log.Fatal("ERROR", err)
+			log.Fatal("ERROR ", err)
 		}
 
 	    for _, folder := range folders {
