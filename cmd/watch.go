@@ -4,7 +4,6 @@ import (
 	"github.com/spf13/cobra"
 	"go-watcher/watcher"
 	"strings"
-	"time"
 )
 
 var WatchCmd = &cobra.Command{
@@ -16,7 +15,7 @@ var WatchCmd = &cobra.Command{
 func init() {
 	// Flags cmd watch here
 	WatchCmd.Flags().String("path", "./","Directory to watch")
-	WatchCmd.Flags().Duration("delay", 3,"Delay for next execution in seconds")
+	WatchCmd.Flags().Duration("delay", 3,"Delay for next execution")
 	WatchCmd.Flags().Bool("debug", false,"Debug will give more info about the process")
 	WatchCmd.Flags().String("filters", "","Extension to filter with comma separated")
 }
@@ -29,7 +28,7 @@ func watchCmd(cmd *cobra.Command, args []string) {
 
 	// Watcher builder
 	wf := watcher.New().
-		SetDelay(delay * time.Second).
+		SetDelay(delay).
 		SetDebug(debug).
 		SetExtFilter(strings.Split(filters, ",")...).
 		Build()
