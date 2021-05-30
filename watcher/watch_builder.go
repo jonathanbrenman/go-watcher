@@ -1,6 +1,8 @@
 package watcher
 
-import "time"
+import (
+	"time"
+)
 
 type WatcherBuilder interface {
 	SetDelay(delay time.Duration) WatcherBuilder
