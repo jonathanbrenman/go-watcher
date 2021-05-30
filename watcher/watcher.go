@@ -21,29 +21,46 @@ type watcher struct {
 	delay time.Duration
 	debug bool
 	filters []string
+	history []models.FilesMetadata
 }
 
 // Add new watcher
 func (w *watcher) Add(root string) {
 	w.root = root
 	for {
+		start := time.Now()
+		if len(w.files) > 0 {
+			w.history = w.files
+		}
 		w.files = []models.FilesMetadata{}
 		w.files = w.listRecursive(root)
-		if w.debug {
-			log.Println(fmt.Sprintf(
-				"Start watching folder %s with configs: debug = %v, delay = %s, only files with extensions %s",
-				root,
-				w.debug,
-				w.delay,
-				w.filters,
-			))
-		}
+		w.logDebugMessage(fmt.Sprintf(
+			"Start watching folder %s with configs: debug = %v, delay = %s, only files with extensions %s",
+			root,
+			w.debug,
+			w.delay,
+			w.filters,
+		))
 		for _, file := range w.files {
-			log.Println("Path: ", file.Path)
-			log.Println("Name: ", file.FileInfo.Name())
-			log.Println("Size: ", w.toHumanFormat(file.FileInfo.Size()))
-			fmt.Println()
+			found := false
+			for _, hfile := range w.history {
+				if file.Path == hfile.Path {
+					found = true
+					break
+				}
+			}
+			if !found {
+				fmt.Println("-----------------------------------------")
+				log.Println("New file detected!")
+				log.Println("Path: ", file.Path)
+				log.Println("Name: ", file.FileInfo.Name())
+				log.Println("Size: ", w.toHumanFormat(file.FileInfo.Size()))
+				log.Println("Modified at: ", file.FileInfo.ModTime().Format("2006-01-02 15:04:05"))
+				fmt.Println("-----------------------------------------")
+			}
 		}
+		duration := time.Since(start)
+		w.logDebugMessage("checking for new files ->", duration.String())
 		time.Sleep(w.delay)
 	}
 }
@@ -54,6 +71,7 @@ func (w *watcher) List(root string) {
 		log.Println("Path: ", file.Path)
 		log.Println("Name: ", file.FileInfo.Name())
 		log.Println("Size: ", w.toHumanFormat(file.FileInfo.Size()))
+		log.Println("Modified at: ", file.FileInfo.ModTime().Format("2006-01-02 15:04:05"))
 		fmt.Println()
 	}
 }
@@ -112,4 +130,10 @@ func (w *watcher) toHumanFormat(b int64) string {
                 exp++
         }
         return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "kMGTPE"[exp])
+}
+
+func (w *watcher) logDebugMessage(message ...string) {
+	if w.debug {
+		log.Println(message)
+	}
 }
