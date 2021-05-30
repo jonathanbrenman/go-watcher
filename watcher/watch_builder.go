@@ -1,6 +1,7 @@
 package watcher
 
 import (
+	"go-watcher/models"
 	"time"
 )
 
@@ -46,7 +47,7 @@ func (wb *watcherBuilder) SetDebug(enabled bool) WatcherBuilder {
 func (wb *watcherBuilder) Build() Watcher {
 	return &watcher{
 		filters: wb.filters,
-		files: []string{},
+		files: []models.FilesMetadata{},
 		debug: wb.debug,
 		delay: wb.delay,
 	}
